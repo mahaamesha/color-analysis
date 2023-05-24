@@ -10,7 +10,7 @@ if __name__ == '__main__':
         file_path = os.path.join(input_folder_path, fname)
     
         print(file_path)
-        f.im_process(file_path)
+        im_roi = f.im_process(file_path)
         
         # background_color = f.detect_background_color(file_path)
         # print(f"Background Color (BGR): {background_color}")

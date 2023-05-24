@@ -87,7 +87,7 @@ def im_process(file_path:str):
 	im_roi = get_roi(im.copy(), centroid_arr[0], r=20/100)
 	im_final = get_im_final(im_contour.copy(), centroid_arr[0], r=20/100)
 	
-	plt.subplot(241); plt.imshow(cv.cvtColor(im, cv.COLOR_BGR2RGB)); plt.title('original');
+	plt.subplot(241); plt.title('original'); plt.imshow(cv.cvtColor(im, cv.COLOR_BGR2RGB))
 	plt.subplot(242); plt.title('mask'); plt.imshow(mask, cmap='gray')
 	plt.subplot(243); plt.title('opening'); plt.imshow(im_opening, cmap='gray')
 	plt.subplot(244); plt.title('closing'); plt.imshow(im_closing, cmap='gray')
@@ -105,6 +105,8 @@ def im_process(file_path:str):
 	# plt.show()
 	return im_roi
 
+
+# only for single channel
 def get_hist(im, mask=None):
 	# handle if mask=None
 	if not mask: mask = np.zeros(im.shape[:2], np.uint8); mask[:, :] = 255
@@ -117,6 +119,8 @@ def get_hist(im, mask=None):
 	ax.set_xlabel('intensity'); ax.set_ylabel('frequency')
 	plt.show()
 
+
+# for colored (3 channels) image
 def get_rgb_histogram(im, mask=None):
 	# handle if mask=None
 	if not mask: mask = np.zeros(im.shape[:2], np.uint8); mask[:, :] = 255
@@ -130,53 +134,3 @@ def get_rgb_histogram(im, mask=None):
 	ax.set_xlim(0, 256)
 	ax.set_xlabel('intensity'); ax.set_ylabel('frequency')
 	plt.show()
-
-
-
-def detect_background_color(image_path):
-	# Read the image
-	image = cv.imread(image_path)
-
-	# Convert the image from BGR to HSV color space
-	hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-
-	# Calculate the histogram
-	hist = cv.calcHist([hsv_image], [0], None, [256], [0, 256])
-
-	# Find the peak value (most frequent color)
-	peak_index = np.argmax(hist)
-
-	# Get the corresponding hue value of the peak
-	background_hue = int(peak_index)
-
-	# Create a mask for the background color
-	lower_background = np.array([background_hue - 10, 0, 0])
-	upper_background = np.array([background_hue + 10, 255, 255])
-	background_mask = cv.inRange(hsv_image, lower_background, upper_background)
-
-	# Apply the background mask to the original image
-	background_color = cv.bitwise_and(image, image, mask=background_mask)
-
-	# Display the original image and the background color
-	plt.figure(figsize=(10, 5))
-	plt.subplot(231)
-	plt.imshow(cv.cvtColor(image, cv.COLOR_BGR2RGB))
-	plt.title('Original Image')
-	plt.subplot(232)
-	plt.imshow(cv.cvtColor(hsv_image, cv.COLOR_BGR2RGB)[:,:,0], cmap='gray')
-	plt.title('HSV Image')
-	plt.subplot(233)
-	plt.plot(hist)
-	plt.title('Hue Histogram')
-	plt.subplot(234)
-	plt.imshow(cv.cvtColor(background_mask, cv.COLOR_BGR2RGB))
-	plt.title('Background Mask')
-	plt.subplot(235)
-	plt.imshow(cv.cvtColor(background_color, cv.COLOR_BGR2RGB))
-	plt.title('Background Color')
-
-	plt.tight_layout()
-	plt.show()
-
-	# Return the background color (BGR values)
-	return background_color[0, 0, :]
