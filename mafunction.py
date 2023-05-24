@@ -11,6 +11,12 @@ output_folder_path = os.path.join(project_path, 'imgs/output/')
 def imshow_plt(im):
 	plt.imshow( cv.cvtColor(im, cv.COLOR_BGR2RGB) )
 	plt.show()
+
+
+def savefig_plt(fig, file_path, sufix='_sufix.jpg'):
+	fname = os.path.basename(file_path)[:-4]		# without extension
+	save_path = os.path.join(output_folder_path, fname)
+	fig.savefig(save_path + sufix, dpi=300)
 	
 
 # get centroid of every detected cnt, return it as array
@@ -36,7 +42,7 @@ def draw_contour(im_biner, im_ori):
 		cnts = tuple([cnts[0]])
 	r = int(1.2/100*im_ori.shape[0])
 	im_contour = cv.drawContours(im_ori.copy(), cnts, -1, (0,255,0), r)
-	print("Contours:", len(cnts))
+	# print("Contours:", len(cnts))
 	return im_contour, cnts
 
 
@@ -117,7 +123,8 @@ def get_hist(im, mask=None):
 	ax.plot(hist)
 	ax.set_xlim(0, 256)
 	ax.set_xlabel('intensity'); ax.set_ylabel('frequency')
-	plt.show()
+	# plt.show()
+	return fig
 
 
 # for colored (3 channels) image
@@ -132,5 +139,7 @@ def get_rgb_histogram(im, mask=None):
 		hist = cv.calcHist([masked_im], [i], mask, [256], [0,256])
 		ax.plot(hist, color=clr)
 	ax.set_xlim(0, 256)
+	ax.set_ylim(0, 2e4)
 	ax.set_xlabel('intensity'); ax.set_ylabel('frequency')
-	plt.show()
+	# plt.show()
+	return fig
