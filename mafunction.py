@@ -37,7 +37,8 @@ def get_centroid(cnts):
 
 def draw_contour(im_biner, im_ori):
 	cnts, hierarchy = cv.findContours(im_biner, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-	if len(cnts) > 1:
+	if len(cnts) == 0: print('[Error] No contour detected.'); exit()
+	if len(cnts) > 1:	# select the biggest
 		cnts = sorted(cnts, key=cv.contourArea, reverse=True)
 		cnts = tuple([cnts[0]])
 	r = int(1.2/100*im_ori.shape[0])
@@ -78,7 +79,7 @@ def im_process(file_path:str):
 	im_hsv = cv.cvtColor(im, cv.COLOR_BGR2HSV)
 	im_blur = cv.GaussianBlur(im_hsv, (7,7), sigmaX=3)
 
-	lower_hsv, upper_hsv = np.array([0,0,128]), np.array([179,255,255])
+	lower_hsv, upper_hsv = np.array([0,0,150]), np.array([179,255,255])
 	mask = cv.inRange(im_blur, lower_hsv, upper_hsv)     # h<=179; s,v <=255
 	
 	kernel = np.ones( (7,7), np.uint8 )
@@ -123,6 +124,9 @@ def get_hist(im, mask=None):
 	ax.plot(hist)
 	ax.set_xlim(0, 256)
 	ax.set_xlabel('intensity'); ax.set_ylabel('frequency')
+	ax.grid(which='major', linewidth=1.2)
+	ax.grid(which='minor', linewidth=0.6)
+	ax.minorticks_on()
 	# plt.show()
 	return fig
 
@@ -141,5 +145,8 @@ def get_rgb_histogram(im, mask=None):
 	ax.set_xlim(0, 256)
 	ax.set_ylim(0, 2e4)
 	ax.set_xlabel('intensity'); ax.set_ylabel('frequency')
+	ax.grid(which='major', linewidth=1.2)
+	ax.grid(which='minor', linewidth=0.6)
+	ax.minorticks_on()
 	# plt.show()
 	return fig
