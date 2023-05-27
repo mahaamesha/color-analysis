@@ -11,12 +11,6 @@ output_folder_path = os.path.join(project_path, 'imgs/output/')
 def imshow_plt(im):
 	plt.imshow( cv.cvtColor(im, cv.COLOR_BGR2RGB) )
 	plt.show()
-
-
-def savefig_plt(fig, file_path, sufix='_sufix.jpg'):
-	fname = os.path.basename(file_path)[:-4]		# without extension
-	save_path = os.path.join(output_folder_path, fname)
-	fig.savefig(save_path + sufix, dpi=300)
 	
 
 # get centroid of every detected cnt, return it as array
@@ -105,9 +99,10 @@ def im_process(file_path:str):
 	plt.tight_layout()
 
 	fname = os.path.basename(file_path)[:-4]		# without extension
-	save_path = os.path.join(output_folder_path, fname)
-	plt.savefig(save_path + '_process.jpg', dpi=300)
-	cv.imwrite(save_path + '_final.jpg', im_final)
+	save_path1 = os.path.join(output_folder_path, 'process/', fname)
+	plt.savefig(save_path1 + '_process.jpg', dpi=300)
+	save_path2 = os.path.join(output_folder_path, 'im_final/', fname)
+	cv.imwrite(save_path2 + '_final.jpg', im_final)
 	
 	# plt.show()
 	return im_roi
@@ -136,12 +131,13 @@ def get_rgb_histogram(im, mask=None):
 	# handle if mask=None
 	if not mask: mask = np.zeros(im.shape[:2], np.uint8); mask[:, :] = 255
 	masked_im = cv.bitwise_and(im, im, mask=mask)
-
-	color = ('b','g','r')
+	
+	hist_bgr = []
 	fig, ax = plt.subplots(figsize=(8,6))
-	for i,clr in enumerate(color):
+	for i,clr in enumerate( ('b','g','r') ):
 		hist = cv.calcHist([masked_im], [i], mask, [256], [0,256])
 		ax.plot(hist, color=clr)
+		hist_bgr.append(hist)
 	ax.set_xlim(0, 256)
 	ax.set_ylim(0, 2e4)
 	ax.set_xlabel('intensity'); ax.set_ylabel('frequency')
@@ -149,4 +145,23 @@ def get_rgb_histogram(im, mask=None):
 	ax.grid(which='minor', linewidth=0.6)
 	ax.minorticks_on()
 	# plt.show()
-	return fig
+
+	return fig, hist_bgr
+
+
+def save_histfig(fig, file_path):
+	fname = os.path.basename(file_path)[:-4]		# without extension
+	save_path = os.path.join(output_folder_path, 'hist/', fname)
+	fig.savefig(save_path + '_hist.jpg', dpi=300)
+
+
+def export_hist_data(hist_bgr:list, file_path:str):
+	fname = os.path.basename(file_path)[:-4]		# without extension
+	save_path = os.path.join(output_folder_path, 'hist_data/', fname + '_histbgr.txt')
+	with open(save_path, 'w') as f:
+		f.write('x_axis\tb_count\tg_count\tr_count\n')
+		for i in range(256):
+			b_count = int( hist_bgr[0][i][0] )
+			g_count = int( hist_bgr[1][i][0] )
+			r_count = int( hist_bgr[2][i][0] )
+			f.write(f'{i}\t{b_count}\t{g_count}\t{r_count}\n')

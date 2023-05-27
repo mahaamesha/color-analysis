@@ -8,8 +8,9 @@ from paralleling import do_paralleling
 def processing_func(file_path):
     print('    Processing %s ...' %os.path.basename(file_path), end=' ')
     im_roi = f.im_process(file_path)
-    fig_hist = f.get_rgb_histogram(im_roi)
-    f.savefig_plt(fig_hist, file_path, sufix='_hist.jpg')
+    fig_hist, hist_bgr = f.get_rgb_histogram(im_roi)
+    f.save_histfig(fig_hist, file_path)
+    f.export_hist_data(hist_bgr, file_path)
     print('OK')
 
 
